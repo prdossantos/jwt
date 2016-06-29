@@ -1,0 +1,19 @@
+{
+    "name": "prdossantos/jwt",
+    "authors": [
+        {
+            "name": "prdossantos",
+            "email": "paulo.ricardo0217@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src/Jwt"
+        ]
+    },
+    "require": {
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    }
+}
