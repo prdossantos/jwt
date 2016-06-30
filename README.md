@@ -1,2 +1,2 @@
-# jwt
-Uma maneira simples e fácil de gerar seu Json Web Token
+# Easy JWT
+Json Web Token sem complicações
