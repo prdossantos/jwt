@@ -14,9 +14,9 @@ class JwtTest extends TestCase {
 	{
 		$token = \src\Jwt\Jwt::token(['iss'=>'domain.com'],'asdf');
 
-		\src\Jwt\Jwt::setAlg('HS256');
+		\src\Jwt\Jwt::setAlg('sha256');
 
-		$this->assertEquals('HS256', \src\Jwt\Jwt::$header['alg'], 'header alterado após o construtor');
+		$this->assertEquals('sha256', \src\Jwt\Jwt::getAlg(), 'Algoritimo alterado');
 	}
 
 	public function testGetAlg()
@@ -80,5 +80,16 @@ class JwtTest extends TestCase {
 		]);	
 
 		$this->assertTrue(\src\Jwt\Jwt::checkSignature('asdf',$token), 'key: asdf invalid');
+	}
+
+	public function testCheckPayload()
+	{
+		$token = \src\Jwt\Jwt::token([
+			'iss' => 'domain.com',
+			'jti' => '58987-9'
+		],'1232');		
+
+		$this->assertTrue(\src\Jwt\Jwt::checkPayload($token,'iss','domain.com'),'invalid iss');
+		$this->assertTrue(\src\Jwt\Jwt::checkPayload($token,'jti','58987-9'),'invalid jti');
 	}
 }

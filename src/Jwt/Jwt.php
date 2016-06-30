@@ -65,6 +65,17 @@ class Jwt {
 
 	}
 
+	static public function decode($token)
+	{
+		$parts = explode('.',$token);
+
+		$header = json_decode(base64_decode($parts[0]),true);
+		$payload = json_decode(base64_decode($parts[1]),true);
+		$signature = isset($parts[2]) ? $parts[2] : '';
+
+		return ['header'=>$header,'payload'=>$payload,'signature'=>$signature];
+	}
+
 	static public function checkSignature($key,$token)
 	{
 		if($key && $token) {
@@ -81,15 +92,21 @@ class Jwt {
 		return false;
 	}
 
-	static public function decode($token)
+	/**
+	 * Valida os parametros do payload
+	 * @param    string $token token com campos originais
+	 * @param    string $field campo a ser validado
+	 * @param    string $value valor passado
+	 * @return   boolean        
+	 */
+	static public function checkPayload($token, $field, $value)
 	{
-		$parts = explode('.',$token);
+		$parts = self::decode($token);
+		$payload = $parts['payload'];
 
-		$header = json_decode(base64_decode($parts[0]),true);
-		$payload = json_decode(base64_decode($parts[1]),true);
-		$signature = isset($parts[2]) ? $parts[2] : '';
+		if( isset($payload[$field]) && $payload[$field] == $value )
+			return true;
 
-		return ['header'=>$header,'payload'=>$payload,'signature'=>$signature];
+		return false;
 	}
-
 }
