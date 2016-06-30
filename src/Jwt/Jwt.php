@@ -7,25 +7,30 @@ class Jwt {
 	static private $payload;
 	static private $signature;
 	static public $key;
+	static private $alg;
 
-	static public function setAlg($alg)
+	static public function setAlg($alg='')
 	{
-		if( $alg ) {
-			self::$header['alg'] = $alg;
-		}
+		if( $alg )
+			self::$alg = $alg;
+		else
+			self::$alg = 'sha256';
 
-		return $alg;
+		return self::$alg;
 	}
 
-	static public function getAlg($alg='')
+	static public function getAlg()
 	{
-		$algs = [
-			'HS256' => 'sha256'
-		];
-		if($alg)
-			return $algs[$alg];
+		return (self::$alg) ? self::$alg : 'sha256';
+	}
 
-		return isset($algs[self::$header['alg']]) ? $algs[self::$header['alg']] : 'sha256';
+	static public function setHeader($args)
+	{
+		if(is_array($args)) {
+			self::$header = $args;
+		}
+
+		return "Invalid argument";
 	}
 
 	/**
@@ -67,7 +72,7 @@ class Jwt {
 
 			$header = base64_encode(json_encode($parts['header']));
 			$payload = base64_encode(json_encode($parts['payload']));
-			$signature = base64_encode(hash_hmac(self::getAlg($parts['header']['alg']), "$header.$payload", $key, true));
+			$signature = base64_encode(hash_hmac(self::getAlg(), "$header.$payload", $key, true));
 
 			if($signature == $parts['signature'])
 				return true;			
