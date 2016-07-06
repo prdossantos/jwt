@@ -1,6 +1,17 @@
 # Easy JWT
 Json Web Token sem complicações
 
+## Instalação
+> Testes
+```sh
+  composer install --dev
+```
+
+## Testes
+```sh
+  composer tests
+```
+
 ## Exemplos
 > Com uma chave secreta para cada token
 ```php
