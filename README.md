@@ -26,7 +26,7 @@ Json Web Token sem complicações
 ```
 > Com uma chave secreta global
 ```php
-  Jwt::$key = 'my global secret key';
+  Token::$key = 'my global secret key';
   $token = Token::generate([
     'iss' => 'domain.com',
     'jti' => 1234
