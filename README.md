@@ -35,7 +35,6 @@ Json Web Token sem complicações
 > Decodificar um token
 ```php
   $decode = Token::decode($token);
-
   #output
   Array(
     [header] => Array
@@ -43,34 +42,29 @@ Json Web Token sem complicações
             [typ] => JWT
             [alg] => HS256
         )
-
     [payload] => Array
         (
             [iss] => domain.com
             [jti] => 6546
         )
-
     [signature] => fCan1TqMPuFnxKr3/t2GRFA68sWLUInpXMgzj2asgs8=
   )
 ```
 > Verifica a assinatura
 ```php
   Token::checkSignature('my secret key',$token);
-
   #output
   boolean
 ```
 > Verifica um campo do payload
 ```php
   Token::checkPayload($token,'iss','domain.com');
-
   #output
   boolean
 ```
 > Seta algoritimo de criptografia
 ```php
   Token::setAlg('sha512');
-
   #default
   sha256
 ```
