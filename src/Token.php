@@ -1,7 +1,7 @@
 <?php
-namespace src\Jwt;
+namespace Jwt;
 
-class Jwt {
+class Token {
 
 	static public $header;
 	static private $payload;
@@ -39,7 +39,7 @@ class Jwt {
 	 * @param 	 string $local_key  Chave que será utilizada para gerar a signature
 	 * @return   string         	token
 	 */
-	static public function token($payload,$local_key='')
+	static public function generate($payload,$local_key='')
 	{
 
 	 	if(!self::$header) self::$header = ['typ'=>'JWT','alg'=>'HS256'];

@@ -8,8 +8,11 @@
     ],
     "autoload": {
         "classmap": [
-            "src/Jwt"
-        ]
+            "src"
+        ],
+        "psr-4": {
+            "Jwt\\": "src/"
+        }
     },
     "require": {
     },

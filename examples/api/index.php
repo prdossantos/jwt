@@ -3,7 +3,7 @@
 
 require_once('../../vendor/autoload.php');
 
-use \src\Jwt\Jwt;
+use Jwt\Token;
 
 if(isset(getallheaders()['Authorization'])) {
 	$token = trim(str_replace('Bearer','',getallheaders()['Authorization']));
@@ -14,14 +14,14 @@ if(isset(getallheaders()['Authorization'])) {
 		die(json_encode(['status'=>0,'msg'=>'Informações necessárias para requisição incompletas.']));
 
 
-	$parts = Jwt::decode($token);
-
+	$parts = Token::decode($token);
+	print_r($parts);
 	if( $parts['payload']['jti'] != $cod )
 		die(json_encode(['status'=>0,'msg'=>'Código inválido para esta requisição']));
 
 	$user_key = 'teste';
 
-	if(!Jwt::checkSignature($user_key,$token))
+	if(!Token::checkSignature($user_key,$token))
 		die(json_encode(['status'=>0,'msg'=>'Token inválido']));
 
 
@@ -32,9 +32,9 @@ if(isset(getallheaders()['Authorization'])) {
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-	Jwt::$key = 'teste';
+	Token::$key = 'teste';
 
-	$token = Jwt::token([
+	$token = Token::generate([
 		'iss' => 'domain.com',
 		'jti' => isset($_POST['id']) ? $_POST['id'] : mt_rand(10,10)
 	]);
