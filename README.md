@@ -1,5 +1,5 @@
 # Easy JWT
-Json Web Token sem complicações
+Json Web Jwt
 
 ## Instalação
 > Testes
@@ -13,58 +13,63 @@ Json Web Token sem complicações
 ```
 
 ## Exemplos
-> Instanciando a classe
+Instanciando a classe
 ```php
-  use Jwt\Token;
+  use EasyJwt\Jwt;
 ```
-> Com uma chave secreta para cada token
+Gerando uma chave secreta global, a mesma será usada em todos os tokens
 ```php
-  $token = Token::generate([
+  Jwt::$key = 'my global secret key';
+```
+Gerar um token com uma chave diferente para cada.
+```php
+  $token = Jwt::generate([
     'iss' => 'domain.com',
     'jti' => 1234
   ], 'my secret key'); 
 ```
-> Com uma chave secreta global
+Pegando um token de uma requisição.
 ```php
-  Token::$key = 'my global secret key';
-  $token = Token::generate([
-    'iss' => 'domain.com',
-    'jti' => 1234
-  ]); 
+  /**
+   * Retorna uma instancia da classe, caso o token seja valido
+   * @param    string $headerAuth  caso você queira passar o token manualmente,
+   *                               por padrão o token é captado pelo header "Authorizarion"
+   *                               que será passado na requisição.
+   * @param    string $type  tipo de autorização, DEFAULT (Bearer)
+   * @return   instance|boolean        
+   */
+  $token = Jwt::getToken();
 ```
-> Decodificar um token
+Validando a assinatura
 ```php
-  $decode = Token::decode($token);
-  #output
-  Array(
-    [header] => Array
-        (
-            [typ] => JWT
-            [alg] => HS256
-        )
-    [payload] => Array
-        (
-            [iss] => domain.com
-            [jti] => 6546
-        )
-    [signature] => fCan1TqMPuFnxKr3/t2GRFA68sWLUInpXMgzj2asgs8=
-  )
-```
-> Verifica a assinatura
-```php
-  Token::checkSignature('my secret key',$token);
+  $token = Jwt::getToken();
+  $token->validSignature('my secret key');
   #output
   boolean
 ```
-> Verifica um campo do payload
+Validando um campo do payload
 ```php
-  Token::checkPayload($token,'iss','domain.com');
+  $token = Jwt::getToken();
+  /**
+   * Valida os parametros do payload
+   * @param    string $field campo a ser validado
+   * @param    string $value valor passado
+   * @param    boolean $return retorna o valor comparado
+   * @return   boolean        
+   */
+  print $token->validPayload('iss','domain.com');
   #output
-  boolean
+  true
 ```
-> Seta algoritimo de criptografia
+Retora o valor de um campo payload
 ```php
-  Token::setAlg('sha512');
+  print Jwt::getToken()->getPayload('iss');
+  #output
+  domain.com
+```
+Setar um algoritimo de criptografia
+```php
+  Jwt::setAlg('sha512');
   #default
   sha256
 ```

@@ -1,96 +1,99 @@
 <?php 
 use PHPUnit_Framework_TestCase as TestCase;
-use Jwt\Token;
+use Jwt\Jwt;
 
-class TokenTest extends TestCase {
-
-	public function testHeader()
-	{
-		$token = Token::generate(['iss'=>'domain.com'],'asdf');
-
-		$this->assertEquals('HS256', Token::$header['alg'], 'header default declarado');
-	}
+class JwtTest extends TestCase {
 
 	public function testSetAlg()
 	{
-		$token = Token::generate(['iss'=>'domain.com'],'asdf');
+		$token = Jwt::generate(['iss'=>'domain.com'],'asdf');
 
-		Token::setAlg('sha256');
+		Jwt::setAlg('sha256');
 
-		$this->assertEquals('sha256', Token::getAlg(), 'Algoritimo alterado');
+		$this->assertEquals('sha256', Jwt::getAlg(), 'Algoritimo alterado');
 	}
 
 	public function testGetAlg()
 	{
-		$token = Token::generate(['iss'=>'domain.com'],'asdf');
+		$token = Jwt::generate(['iss'=>'domain.com'],'asdf');
 
-		$this->assertEquals('sha256', Token::getAlg());
+		$this->assertEquals('sha256', Jwt::getAlg());
 
 	}
 
 	public function testKey()
 	{
-		Token::$key = 'asdf';
+		Jwt::$key = 'asdf';
 
-		$this->assertEquals('asdf',Token::$key);		
+		$this->assertEquals('asdf',Jwt::$key);		
 	}
 
-	public function testToken()
+	public function testGenerate()
 	{
-
-		Token::$key = 'asdf';
-
-		$token = Token::generate([
+ 		$token = Jwt::generate([
 			'iss' => 'domain.com',
 			'jti' => '58987-9'
-		]);
+		],'asdf');
 
 		$this->assertNotNull($token);
+		
+		return $token;
 	}
 
 	public function testTokenLocalKey()
 	{
 
-		$token = Token::generate([],'asdf');
+		$token = Jwt::generate([],'asdf');
 
 		$this->assertNotNull($token);
 	}	
 
-	public function testDecode()
-	{
-		Token::$key = 'asdf';
+	/**
+	 * @depends testGenerate
+	 */
+	public function testDecode($token)
+	{	
 
-		$token = Token::generate([
-			'iss' => 'domain.com',
-			'jti' => '58987-9'
-		]);	
-
-		$decode = Token::decode($token);
-
-		$this->assertEquals(Token::$header,$decode['header'],' header is invalid');
+		$decode = Jwt::decode($token);
+		$this->assertEquals(Jwt::$header,$decode->getHeader(),' header is invalid');
 
 	}
 
-	public function testCheckSignature()
+	/**
+	 * @depends testGenerate
+	 */
+	public function testGetToken($token)
 	{
-		Token::$key = 'asdf';
+		$tokenInstance = Jwt::getToken($token);
 
-		$token = Token::generate([
-			'iss' => 'domain.com',
-			'jti' => '58987-9'
-		]);	
+		$this->assertNotNull($token, 'invalid token');
 
-		$this->assertTrue(Token::checkSignature('asdf',$token), 'key: asdf invalid');
+		return $tokenInstance;
 	}
 
-	public function testCheckPayload()
+	/**
+	 * @depends testGetToken
+	 */
+	public function testGetPayload($token)
 	{
-		$token = Token::generate([
-			'iss' => 'domain.com',
-			'jti' => '58987-9'
-		],'1232');		
-
-		$this->assertTrue(Token::checkPayload($token,'iss','domain.com'),'invalid iss');
-		$this->assertTrue(Token::checkPayload($token,'jti','58987-9'),'invalid jti');
+		$this->assertEquals($token->getPayload('iss'),'domain.com',' invalid iss payload');
 	}
+	
+	/**
+	 * @depends testGetToken
+	 */
+	public function testCheckSignature($token)
+	{
+		$this->assertNotNull($token->validSignature('asdf'), 'key: asdf invalid');
+	}
+
+	/**
+	 * @depends testGetToken
+	 */
+	public function testValidPayload($token)
+	{
+		$this->assertTrue($token->validPayload('iss','domain.com'),'invalid iss');
+	}
+
+	
 }

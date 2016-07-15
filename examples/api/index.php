@@ -3,40 +3,39 @@
 
 require_once('../../vendor/autoload.php');
 
-use Jwt\Token;
+use Jwt\Jwt;
 
-if(isset(getallheaders()['Authorization'])) {
-	$token = trim(str_replace('Bearer','',getallheaders()['Authorization']));
+$gt = Jwt::getToken();
 
-	$cod = isset($_GET['cod']) ? $_GET['cod'] : 0;
+if($gt) {
 
-	if(!$cod || !$token)
+	print_r($_SERVER);
+
+	$cod = isset($_REQUEST['cod']) ? $_REQUEST['cod'] : 0;
+
+	if(!$cod )
 		die(json_encode(['status'=>0,'msg'=>'Informações necessárias para requisição incompletas.']));
 
-
-	$parts = Token::decode($token);
-	print_r($parts);
-	if( $parts['payload']['jti'] != $cod )
+	// print_r($parts);
+	if( $gt->getPayload('jti') != $cod )
 		die(json_encode(['status'=>0,'msg'=>'Código inválido para esta requisição']));
 
 	$user_key = 'teste';
 
-	if(!Token::checkSignature($user_key,$token))
+	if(!$gt->validSignature($user_key))
 		die(json_encode(['status'=>0,'msg'=>'Token inválido']));
 
 
-	echo json_encode(['status'=>1,'msg'=>'Acesso realizado com sucesso','data'=>$token]);		
+	// echo json_encode(['status'=>1,'msg'=>'Acesso realizado com sucesso','data'=>$token]);		
 	exit;
 }
+else {
 
+	Jwt::$key = 'teste';
 
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-	Token::$key = 'teste';
-
-	$token = Token::generate([
+	$token = Jwt::generate([
 		'iss' => 'domain.com',
-		'jti' => isset($_POST['id']) ? $_POST['id'] : mt_rand(10,10)
+		'jti' => isset($_REQUEST['id']) ? $_REQUEST['id'] : mt_rand(10,10)
 	]);
 
 	if( $token ) {
@@ -45,5 +44,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	}
 }
 
-echo json_encode(['status'=>0,'msg'=>'Método '.$_SERVER['REQUEST_METHOD'].' inválido']); exit;
+// echo json_encode(['status'=>0,'msg'=>'Método '.$_SERVER['REQUEST_METHOD'].' inválido']); exit;
 
