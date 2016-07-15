@@ -5,11 +5,9 @@ require_once('../../vendor/autoload.php');
 
 use Jwt\Jwt;
 
-$gt = Jwt::getToken();
+$token = Jwt::getToken();
 
-if($gt) {
-
-	print_r($_SERVER);
+if($token) {
 
 	$cod = isset($_REQUEST['cod']) ? $_REQUEST['cod'] : 0;
 
@@ -17,16 +15,16 @@ if($gt) {
 		die(json_encode(['status'=>0,'msg'=>'Informações necessárias para requisição incompletas.']));
 
 	// print_r($parts);
-	if( $gt->getPayload('jti') != $cod )
+	if( $token->getPayload('jti') != $cod )
 		die(json_encode(['status'=>0,'msg'=>'Código inválido para esta requisição']));
 
 	$user_key = 'teste';
 
-	if(!$gt->validSignature($user_key))
+	if(!$token->validSignature($user_key))
 		die(json_encode(['status'=>0,'msg'=>'Token inválido']));
 
 
-	// echo json_encode(['status'=>1,'msg'=>'Acesso realizado com sucesso','data'=>$token]);		
+	echo json_encode(['status'=>1,'msg'=>'Acesso realizado com sucesso','data'=>$token]);		
 	exit;
 }
 else {
