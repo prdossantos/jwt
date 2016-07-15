@@ -82,6 +82,9 @@ class Jwt {
 	{
 		$parts = explode('.',$token);
 
+		if( count($parts) != 3 )
+			throw new \ErrorException("Invalid token", 1, E_ERROR,__FILE__,__LINE__);
+			
 		$header = json_decode(base64_decode($parts[0]),true);
 		$payload = json_decode(base64_decode($parts[1]),true);
 		$signature = isset($parts[2]) ? $parts[2] : '';
