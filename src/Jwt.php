@@ -3,12 +3,18 @@ namespace Jwt;
 
 class Jwt {
 
-	public static 	$header;
+	public static 	$header = array('typ'=>'JWT','alg'=>'HS256');
 	private static 	$instance = null;
 	private static 	$payload;
 	private static 	$signature;
 	public static 	$key;
-	private static 	$alg;
+	public static 	$alg = 'HS256';
+	private static 	$supported_algs = array(
+        'HS256' => array('hash_hmac', 'SHA256'),
+        'HS512' => array('hash_hmac', 'SHA512'),
+        'HS384' => array('hash_hmac', 'SHA384'),
+        // 'RS256' => array('openssl', 'SHA256'),
+    );
 	private static 	$tokenDecoded;
 	private static 	$token;
 
@@ -20,30 +26,49 @@ class Jwt {
 
 	public static function setAlg($alg='')
 	{
-		if( $alg )
+
+		if(!$alg)
+			throw new \ErrorException("Algorithm invalid", 1);
+			
+		if( isset(self::$supported_algs[$alg]) ) {
 			self::$alg = $alg;
-		else
-			self::$alg = 'sha256';
+			self::setHeader('alg',$alg);
+		}
+		else {
+			throw new \ErrorException("Algorithm invalid", 1);
+		}
 
 		return self::$alg;
 	}
 
-	public static function getAlg()
-	{
-		return (self::$alg) ? self::$alg : 'sha256';
-	}
-
 	public static function setHeader($arg1,$arg2)
 	{
-		if(is_array($arg1)) {
+		if(is_array($arg1))
 			self::$header = $arg1;
-		} else if($arg1 && $arg2) {
+		else if($arg1 && $arg2)
 			self::$header[$arg1] = $arg2;
-		} else {
-			return "Invalid argument";
-		}
+		else
+			throw new \ErrorException("Invalid argument", 1);
 
 		return self::$header;
+	}
+
+	private static function doSignature($token,$key)
+	{
+		$crypt = self::$supported_algs[self::$alg];
+		
+		list($function,$algorithm) = ($crypt) ? $crypt : array(null=>'');
+
+		$signature = null;
+
+		switch ($function) {
+			case 'hash_hmac':
+			default:
+				$signature = base64_encode(hash_hmac($algorithm, $token, $key, true));
+			break;
+		}	
+
+		return $signature;
 	}
 
 	/**
@@ -52,10 +77,8 @@ class Jwt {
 	 * @param 	 string $local_key  Chave que será utilizada para gerar a signature
 	 * @return   string         	token
 	 */
-	public static function generate($payload,$local_key='')
+	public static function encode($payload,$local_key='')
 	{
-
-	 	if(!self::$header) self::$header = ['typ'=>'JWT','alg'=>'HS256'];
  		
  		self::$payload = $payload;
 
@@ -67,10 +90,14 @@ class Jwt {
  		$key = ($local_key) ? $local_key : self::$key;
 
  		if(!$key)
- 			die('Informe uma chave global ou local');
+			throw new \ErrorException("Invalid key", 1);
 
 
- 		$signature = base64_encode(hash_hmac(self::getAlg(), $token, $key, true));
+ 		$signature = self::doSignature($token,$key);
+
+ 		if(!$signature)
+ 			throw new \ErrorException("Signature invalid", 1);
+ 			
 
  		$token_w_signature = "$token.$signature"; 
 
@@ -83,11 +110,11 @@ class Jwt {
 		$parts = explode('.',$token);
 
 		if( count($parts) != 3 )
-			throw new \ErrorException("Invalid token", 1, E_ERROR,__FILE__,__LINE__);
+			throw new \ErrorException("Invalid token", 1);
 			
 		$header = json_decode(base64_decode($parts[0]),true);
 		$payload = json_decode(base64_decode($parts[1]),true);
-		$signature = isset($parts[2]) ? $parts[2] : '';
+		$signature = $parts[2];
 
 		self::$tokenDecoded = ['header'=>$header,'payload'=>$payload,'signature'=>$signature];
 		if(!self::$token) self::$token = $token;
@@ -102,9 +129,9 @@ class Jwt {
 
 			$header = base64_encode(json_encode($parts['header']));
 			$payload = base64_encode(json_encode($parts['payload']));
-			$signature = base64_encode(hash_hmac(self::getAlg(), "$header.$payload", $key, true));
+			$signature = self::doSignature("$header.$payload", $key);
 
-			if($signature == $parts['signature'])
+			if($signature === $parts['signature'])
 				return true;			
 		}
 

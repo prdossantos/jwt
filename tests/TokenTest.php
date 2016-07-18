@@ -6,19 +6,11 @@ class JwtTest extends TestCase {
 
 	public function testSetAlg()
 	{
-		$token = Jwt::generate(['iss'=>'domain.com'],'asdf');
+		$token = Jwt::encode(['iss'=>'domain.com'],'asdf');
 
-		Jwt::setAlg('sha256');
+		Jwt::setAlg('HS512');
 
-		$this->assertEquals('sha256', Jwt::getAlg(), 'Algoritimo alterado');
-	}
-
-	public function testGetAlg()
-	{
-		$token = Jwt::generate(['iss'=>'domain.com'],'asdf');
-
-		$this->assertEquals('sha256', Jwt::getAlg());
-
+		$this->assertEquals('HS512', Jwt::$alg, 'Algoritimo alterado');
 	}
 
 	public function testKey()
@@ -30,7 +22,7 @@ class JwtTest extends TestCase {
 
 	public function testGenerate()
 	{
- 		$token = Jwt::generate([
+ 		$token = Jwt::encode([
 			'iss' => 'domain.com',
 			'jti' => '58987-9'
 		],'asdf');
@@ -43,7 +35,7 @@ class JwtTest extends TestCase {
 	public function testTokenLocalKey()
 	{
 
-		$token = Jwt::generate([],'asdf');
+		$token = Jwt::encode([],'asdf');
 
 		$this->assertNotNull($token);
 	}	

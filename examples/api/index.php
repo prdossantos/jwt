@@ -31,7 +31,7 @@ else {
 
 	Jwt::$key = 'teste';
 
-	$token = Jwt::generate([
+	$token = Jwt::encode([
 		'iss' => 'domain.com',
 		'jti' => isset($_REQUEST['id']) ? $_REQUEST['id'] : mt_rand(10,10)
 	]);
