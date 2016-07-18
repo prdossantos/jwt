@@ -15,7 +15,7 @@ Json Web Jwt
 ## Exemplos
 Instanciando a classe
 ```php
-  use EasyJwt\Jwt;
+  use Jwt\Jwt;
 ```
 Gerando uma chave secreta global, a mesma será usada em todos os tokens
 ```php
