@@ -23,7 +23,7 @@ Gerando uma chave secreta global, a mesma será usada em todos os tokens
 ```
 Gerar um token com uma chave diferente para cada.
 ```php
-  $token = Jwt::generate([
+  $token = Jwt::encode([
     'iss' => 'domain.com',
     'jti' => 1234
   ], 'my secret key'); 
