@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/prdossantos/jwt.svg?branch=master)](https://travis-ci.org/prdossantos/jwt)
 # Easy JWT
 Json Web Jwt
 
