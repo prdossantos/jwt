@@ -147,6 +147,8 @@ class Jwt {
 	 */
 	public function validPayload($field=null, $value=null, $return=false)
 	{
+		if(!self::$tokenDecoded)
+			return false;
 
 		$parts = self::$tokenDecoded;
 		$payload = $parts['payload'];
@@ -172,6 +174,9 @@ class Jwt {
 	 */
 	public function getHeader($field=null)
 	{
+		if(!self::$tokenDecoded)
+			return null;
+
 		$parts = self::$tokenDecoded;
 		$header = $parts['header'];
 
@@ -188,6 +193,9 @@ class Jwt {
 	 */
 	public function getPayload($field=null)
 	{
+		if(!self::$tokenDecoded)
+			return null;
+
 		$parts = self::$tokenDecoded;
 		$payload = $parts['payload'];
 
@@ -212,14 +220,12 @@ class Jwt {
 		
 		if(!$headerAuth) $headerAuth = (isset(getallheaders()['Authorization'])) ? rtrim(getallheaders()['Authorization']) : null;
 
-		if(substr($headerAuth,0,strlen($type))){
+		if(substr($headerAuth,0,strlen($type)) == $type){
 			self::$token = trim(substr($headerAuth,strlen($type)));
 			self::decode(self::$token);
-
-			return self::getInstance();
 		}
-
-		return false;
+ 		
+ 		return self::getInstance();
 	}
 
 }
