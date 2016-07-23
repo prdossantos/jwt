@@ -1,6 +1,7 @@
 <phpunit
   colors="true"
-  verbose="true">
+  verbose="true"
+  bootstrap="tests/bootstrap.php">
   <testsuites>
     <testsuite name="PHP Json Web Tokens">
         <directory>tests</directory>
