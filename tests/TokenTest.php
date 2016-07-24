@@ -51,16 +51,6 @@ class JwtTest extends TestCase {
 
 	}
 
-	/**
-	 * @depends testGenerate
-	 */
-	public function testFailDecode($token)
-	{	
-
-		$decode = Jwt::decode('Bearer ');
-		$this->assertEquals(Jwt::$header,$decode->getHeader(),' header is invalid');
-
-	}
 
 	/**
 	 * @depends testGenerate
